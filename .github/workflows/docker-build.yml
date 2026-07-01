@@ -7,6 +7,7 @@ on:
       - master
     tags:
       - "v*.*.*"
+      - "test-v*"
   pull_request:
     branches:
       - main
