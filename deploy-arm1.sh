@@ -16,6 +16,13 @@ CONTAINER_NAME="hp-admin"
 DATA_DIR="/vol2/1000/docker/hp-admin"
 PORT="7666"
 
+# Ensure GHCR_PAT is set for private image pull
+if [ -z "$GHCR_PAT" ]; then
+  echo "ERROR: GHCR_PAT is not set in .env.deploy"
+  echo "Please add: GHCR_PAT='ghp_xxxxxxxxxxxxxxxxxxxx'"
+  exit 1
+fi
+
 echo "==> Deploying $IMAGE to ARM server (arm1)..."
 
 ssh arm1 <<EOF
@@ -26,13 +33,46 @@ CONTAINER_NAME="$CONTAINER_NAME"
 DATA_DIR="$DATA_DIR"
 PORT="$PORT"
 DEPLOY_PASSWORD="$DEPLOY_PASSWORD"
+GHCR_PAT="$GHCR_PAT"
 
 echo "==> Creating data directory: \$DATA_DIR"
 mkdir -p "\$DATA_DIR"
 
+echo "==> Configuring GHCR mirror..."
+MIRROR_STATUS=\$(echo "\$DEPLOY_PASSWORD" | sudo -S python3 -c '
+import json, os
+path = "/etc/docker/daemon.json"
+mirror = "https://mh5tjqtuhnnixf-ghcr.xuanyuan.run"
+config = {}
+if os.path.exists(path):
+    try:
+        with open(path) as f:
+            config = json.load(f)
+    except Exception:
+        config = {}
+mirrors = config.get("registry-mirrors", [])
+if mirror not in mirrors:
+    mirrors.append(mirror)
+    config["registry-mirrors"] = mirrors
+    with open(path, "w") as f:
+        json.dump(config, f, indent=2)
+    print("ADDED")
+else:
+    print("PRESENT")
+')
+
+if [ "\$MIRROR_STATUS" = "ADDED" ]; then
+  echo "==> Restarting Docker to apply mirror..."
+  echo "\$DEPLOY_PASSWORD" | sudo -S systemctl restart docker 2>/dev/null || echo "\$DEPLOY_PASSWORD" | sudo -S service docker restart
+  sleep 5
+fi
+
 echo "==> Stopping old container if exists..."
 echo "\$DEPLOY_PASSWORD" | sudo -S docker stop "\$CONTAINER_NAME" 2>/dev/null || true
 echo "\$DEPLOY_PASSWORD" | sudo -S docker rm "\$CONTAINER_NAME" 2>/dev/null || true
+
+echo "==> Logging in to GHCR..."
+echo "\$DEPLOY_PASSWORD" | sudo -S docker login ghcr.io -u icyc0ld -p "\$GHCR_PAT"
 
 echo "==> Pulling image..."
 echo "\$DEPLOY_PASSWORD" | sudo -S docker pull "\$IMAGE"
