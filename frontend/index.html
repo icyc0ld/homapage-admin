@@ -3,29 +3,78 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Homepage Admin</title>
+  <title>Homepage Admin · v2</title>
   <link rel="stylesheet" href="/css/style.css" />
 </head>
 <body>
-  <div class="container">
-    <header>
-      <h1>Homepage Admin</h1>
-      <p class="subtitle">轻量化管理后台 · 连接任意 Docker 中的 homepage 容器</p>
+  <canvas id="particle-canvas"></canvas>
+  <div class="bg-texture"></div>
+
+  <div class="app">
+    <header class="app-header">
+      <div class="brand">
+        <div class="brand-icon">H</div>
+        <div class="brand-text">
+          <h1>Homepage Admin</h1>
+          <p>轻量化 homepage 管理后台</p>
+        </div>
+      </div>
+      <button id="btn-add" class="btn btn-primary">
+        <span>+</span>
+        <span>添加服务器</span>
+      </button>
     </header>
 
     <main>
-      <section class="card">
-        <div class="section-header">
-          <h2>服务器列表</h2>
-          <button id="btn-add" class="btn btn-primary">添加服务器</button>
+      <section class="stats-grid" aria-label="概览">
+        <div class="stat-card">
+          <p class="stat-value" id="stat-total">0</p>
+          <p class="stat-label">服务器总数</p>
         </div>
-        <div id="server-list" class="server-list">
-          <p class="empty">暂无服务器</p>
+        <div class="stat-card">
+          <p class="stat-value" id="stat-online">0</p>
+          <p class="stat-label">在线</p>
+        </div>
+        <div class="stat-card">
+          <p class="stat-value" id="stat-offline">0</p>
+          <p class="stat-label">离线 / 未检测</p>
         </div>
       </section>
 
-      <section id="form-section" class="card hidden">
-        <h2 id="form-title">添加服务器</h2>
+      <section class="card">
+        <div class="card-header">
+          <h2>服务器列表</h2>
+        </div>
+        <div id="server-list" class="server-list">
+          <div class="empty-state">
+            <div class="empty-state-icon">
+              <svg viewBox="0 0 24 24" width="48" height="48" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
+                <circle cx="12" cy="12" r="2"/>
+                <path d="M8.5 8.5C7.1 9.9 6.3 11.4 6.3 12s.8 2.1 2.2 3.5"/>
+                <path d="M5.1 5.1C2.7 7.5 1.5 9.8 1.5 12s1.2 4.5 3.6 6.9"/>
+                <path d="M15.5 8.5c1.4 1.4 2.2 2.9 2.2 3.5s-.8 2.1-2.2 3.5"/>
+                <path d="M18.9 5.1c2.4 2.4 3.6 4.7 3.6 6.9s-1.2 4.5-3.6 6.9"/>
+              </svg>
+            </div>
+            <p>暂无服务器，点击右上角添加</p>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer class="app-footer">
+      <p>Homepage Admin v2 · 前后端分离 · 轻量 · 可迁移</p>
+    </footer>
+  </div>
+
+  <!-- Modal -->
+  <div id="modal-overlay" class="modal-overlay" aria-hidden="true">
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+      <div class="modal-header">
+        <h2 id="modal-title">添加服务器</h2>
+        <button id="modal-close" class="modal-close" aria-label="关闭">×</button>
+      </div>
+      <div class="modal-body">
         <form id="server-form">
           <input type="hidden" id="server-id" />
           <div class="form-group">
@@ -44,18 +93,18 @@
           <div id="check-result" class="check-result hidden"></div>
           <div class="form-actions">
             <button type="button" id="btn-test" class="btn btn-secondary">测试连接</button>
-            <button type="submit" class="btn btn-primary">保存</button>
+            <button type="submit" id="btn-submit" class="btn btn-primary">保存</button>
             <button type="button" id="btn-cancel" class="btn btn-ghost">取消</button>
           </div>
         </form>
-      </section>
-    </main>
-
-    <footer>
-      <p>Homepage Admin · 前后端分离 · 轻量化 · 可迁移</p>
-    </footer>
+      </div>
+    </div>
   </div>
 
+  <!-- Toast container -->
+  <div id="toast-container" class="toast-container"></div>
+
+  <script src="/js/particles.js"></script>
   <script src="/js/app.js"></script>
 </body>
 </html>
