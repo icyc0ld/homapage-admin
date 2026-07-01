@@ -14,7 +14,7 @@ source "$SCRIPT_DIR/.env.deploy"
 IMAGE="ghcr.io/icyc0ld/homapage-admin:test-v2"
 CONTAINER_NAME="hp-admin"
 DATA_DIR="/vol2/1000/docker/hp-admin"
-PORT="6666"
+PORT="7666"
 
 echo "==> Deploying $IMAGE to ARM server (arm1)..."
 
