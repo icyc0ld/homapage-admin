@@ -83,9 +83,58 @@
 
 ---
 
+## v3 — 图形化 Homepage 配置编辑器
+
+**时间：** 2026-07-01
+
+**目标：** 让管理员可以通过 Web UI 图形化地编辑每台 homepage 实例的布局、小部件和全局设置。
+
+### 后端改动
+
+- 新增 `backend/src/store/configStore.js`：按 `serverId` 持久化 `configs.json`
+- 新增 `backend/src/services/homepageConfig.js`：
+  - 从目标 homepage 的 `/api/services`、`/api/bookmarks`、`/api/widgets` 拉取现有配置
+  - 将内部 JSON 配置导出为 homepage 兼容的 YAML
+- 新增 `backend/src/routes/configs.js`：
+  - `GET /api/servers/:id/config` 读取配置
+  - `PUT /api/servers/:id/config` 保存配置
+  - `POST /api/servers/:id/config/import` 从目标 homepage 导入
+  - `GET /api/servers/:id/config/export/:file` 下载 YAML
+- `backend/src/index.js` 挂载配置路由；删除服务器时级联删除其配置
+- `backend/package.json` 新增 `js-yaml` 依赖
+
+### 前端改动
+
+- `frontend/index.html`：新增「配置」按钮与全页配置编辑器视图
+- `frontend/js/config-editor.js`（新增）：
+  - 设置页：标题、主题、配色、背景、语言、链接打开方式等
+  - 小部件页：resources、search、datetime、greeting、logo、天气等常用 info widget
+  - 服务页：分组与服务的增删改，支持服务 widget
+  - 书签页：书签分组与书签项的增删改
+  - 布局页：为每个分组设置 style、columns、tab、header、icon
+  - 从目标 homepage 导入配置
+  - 导出 4 个 YAML 文件
+- `frontend/css/style.css`：新增编辑器布局、Tab 导航、可折叠分组、表单字段等样式
+- `frontend/js/app.js`：服务器卡片增加「配置」入口
+
+### 部署信息
+
+- 与 v2 共用同一数据卷，新增 `configs.json` 会自动创建在 `/app/backend/data`
+- 镜像：`ghcr.io/icyc0ld/homapage-admin:test-v3`（linux/amd64、linux/arm64）
+
+### 使用方式
+
+1. 在服务器列表点击「配置」。
+2. 如需基于现有配置修改，点击「从服务器导入」。
+3. 在设置 / 小部件 / 服务 / 书签 / 布局页编辑。
+4. 点击「保存配置」。
+5. 点击「导出 YAML」下载 4 个 YAML 文件，替换目标 homepage `config` 目录下对应文件并刷新页面。
+
+---
+
 ## 后续可扩展
 
-- 远程读取/编辑 homepage 配置文件
+- 通过挂载卷或 SSH 直接推送配置到 remote homepage
 - 多服务器分组与标签
 - 定时轮询与状态告警
 - 用户认证

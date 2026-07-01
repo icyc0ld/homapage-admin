@@ -2,6 +2,7 @@ import { Router } from "express";
 import { v4 as uuidv4 } from "uuid";
 import { readServers, writeServers } from "../store/jsonStore.js";
 import { checkHomepageConnection } from "../services/homepage.js";
+import { deleteConfig } from "../store/configStore.js";
 
 const router = Router();
 
@@ -101,6 +102,7 @@ router.delete("/:id", (req, res) => {
   }
 
   writeServers(filtered);
+  deleteConfig(req.params.id);
   res.status(204).send();
 });
 

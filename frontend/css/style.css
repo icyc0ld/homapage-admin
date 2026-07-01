@@ -639,3 +639,275 @@ body {
     transition-duration: 0.01ms !important;
   }
 }
+
+/* ---------------- Config Editor ---------------- */
+
+.config-editor-view {
+  position: relative;
+  z-index: 1;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 24px;
+}
+
+.config-editor-header {
+  margin-bottom: 20px;
+}
+
+.config-editor-header .brand {
+  gap: 12px;
+}
+
+.config-actions {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.config-editor-body {
+  display: grid;
+  grid-template-columns: 160px 1fr;
+  gap: 20px;
+  flex: 1;
+}
+
+.config-tabs {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  height: fit-content;
+  position: sticky;
+  top: 24px;
+}
+
+.config-tab {
+  padding: 12px 16px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  color: var(--text);
+  font-size: 0.95rem;
+  font-weight: 500;
+  cursor: pointer;
+  text-align: left;
+  transition: all 0.2s ease;
+}
+
+.config-tab:hover {
+  background: var(--surface-hover);
+}
+
+.config-tab.active {
+  background: linear-gradient(135deg, var(--accent), #3b82f6);
+  color: #0b0d12;
+  border-color: transparent;
+}
+
+.config-panel {
+  display: none;
+}
+
+.config-panel.active {
+  display: block;
+}
+
+.config-form {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+}
+
+.config-form .form-group {
+  margin-bottom: 0;
+}
+
+.config-form .form-group.full-width {
+  grid-column: 1 / -1;
+}
+
+.config-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.config-group-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.config-item {
+  background: rgba(var(--bg-rgb), 0.45);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 16px;
+}
+
+.config-item-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.config-item-title {
+  font-weight: 600;
+  font-size: 1rem;
+  margin: 0;
+}
+
+.config-item-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.config-group {
+  background: rgba(var(--bg-rgb), 0.45);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+
+.config-group-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 14px 16px;
+  background: var(--surface-hover);
+  cursor: pointer;
+}
+
+.config-group-header h3 {
+  margin: 0;
+  font-size: 1.05rem;
+  font-weight: 600;
+}
+
+.config-group-body {
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.config-group-body.collapsed {
+  display: none;
+}
+
+.config-sublist {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.config-fields {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+}
+
+.config-fields .form-group {
+  margin-bottom: 0;
+}
+
+.config-fields .form-group.full-width {
+  grid-column: 1 / -1;
+}
+
+.config-section-title {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin: 8px 0 4px;
+}
+
+.widget-fields {
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid var(--border);
+}
+
+.layout-item {
+  display: grid;
+  grid-template-columns: 1.5fr repeat(4, auto);
+  gap: 12px;
+  align-items: end;
+}
+
+.layout-item .form-group {
+  margin-bottom: 0;
+}
+
+.layout-item .form-group:first-child {
+  min-width: 0;
+}
+
+.layout-item input,
+.layout-item select {
+  width: 100%;
+  min-width: 0;
+}
+
+.export-menu {
+  position: relative;
+}
+
+.export-options {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  min-width: 160px;
+  background: var(--surface-solid);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  box-shadow: var(--shadow);
+  display: none;
+  flex-direction: column;
+  overflow: hidden;
+  z-index: 10;
+}
+
+.export-options.open {
+  display: flex;
+}
+
+.export-options a {
+  padding: 10px 14px;
+  color: var(--text);
+  text-decoration: none;
+  font-size: 0.9rem;
+  transition: background 0.2s ease;
+}
+
+.export-options a:hover {
+  background: var(--surface-hover);
+}
+
+@media (max-width: 900px) {
+  .config-editor-body {
+    grid-template-columns: 1fr;
+  }
+
+  .config-tabs {
+    position: static;
+    flex-direction: row;
+    flex-wrap: wrap;
+  }
+
+  .config-form,
+  .config-fields,
+  .layout-item {
+    grid-template-columns: 1fr;
+  }
+
+  .layout-item .form-group {
+    grid-column: 1 / -1;
+  }
+}

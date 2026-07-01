@@ -155,6 +155,9 @@ function renderServerList() {
           <div class="server-status" id="status-${server.id}">${renderStatus(server.lastCheck)}</div>
         </div>
         <div class="server-actions">
+          <button class="btn btn-secondary btn-small btn-config" data-id="${server.id}" title="配置">
+            配置
+          </button>
           <button class="btn btn-secondary btn-small btn-check" data-id="${server.id}" title="检测">
             检测
           </button>
@@ -313,7 +316,12 @@ function init() {
     if (!target) return;
 
     const id = target.dataset.id;
-    if (target.classList.contains("btn-check")) {
+    if (target.classList.contains("btn-config")) {
+      const server = servers.find((s) => s.id === id);
+      if (server && typeof openConfigEditor === "function") {
+        openConfigEditor(server);
+      }
+    } else if (target.classList.contains("btn-check")) {
       handleCheckServer(id);
     } else if (target.classList.contains("btn-edit")) {
       const server = servers.find((s) => s.id === id);

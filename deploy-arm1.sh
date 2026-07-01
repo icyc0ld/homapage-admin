@@ -1,7 +1,7 @@
 #!/bin/bash
 set -e
 
-# 快速连接并部署 homepage-admin v2 到 ARM 服务器
+# 快速连接并部署 homepage-admin v3 到 ARM 服务器
 # 密码从同目录 .env.deploy 读取（该文件已加入 .gitignore）
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
@@ -11,7 +11,7 @@ export SSH_ASKPASS_REQUIRE=force
 
 source "$SCRIPT_DIR/.env.deploy"
 
-IMAGE="ghcr.io/icyc0ld/homapage-admin:test-v2"
+IMAGE="ghcr.io/icyc0ld/homapage-admin:test-v3"
 CONTAINER_NAME="hp-admin"
 DATA_DIR="/vol2/1000/docker/hp-admin"
 PORT="7666"
