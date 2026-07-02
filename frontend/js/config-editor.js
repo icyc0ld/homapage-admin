@@ -945,9 +945,14 @@ function ensureExportMenu() {
     const link = e.target.closest(".export-link");
     if (!link || !currentServer) return;
     e.preventDefault();
-    link.href = `/api/servers/${currentServer.id}/config/export/${link.dataset.file}`;
-    link.download = `${link.dataset.file}.yaml`;
-    link.click();
+    const file = link.dataset.file;
+    const url = `/api/servers/${currentServer.id}/config/export/${file}`;
+    const downloader = document.createElement("a");
+    downloader.href = url;
+    downloader.download = `${file}.yaml`;
+    document.body.appendChild(downloader);
+    downloader.click();
+    downloader.remove();
     menu.classList.remove("open");
   });
 }

@@ -34,20 +34,54 @@ async function fetchJson(baseUrl, path) {
 }
 
 function homepageGroupToInternal(group) {
+  // homepage /api/services returns: { name, services: [...], groups: [...] }
+  if (group && typeof group === "object" && !Array.isArray(group) && group.name) {
+    const nested = Array.isArray(group.groups) ? group.groups.map(homepageGroupToInternal) : [];
+    return {
+      name: group.name,
+      services: Array.isArray(group.services)
+        ? group.services.map(homepageServiceToInternal).filter(Boolean)
+        : [],
+      ...(nested.length > 0 ? { groups: nested } : {}),
+    };
+  }
+
+  // Fallback: YAML-style { "GroupName": [services] }
   const name = Object.keys(group)[0];
   const rawServices = group[name] || [];
   return {
     name,
-    services: rawServices.map(homepageServiceToInternal).filter(Boolean),
+    services: Array.isArray(rawServices)
+      ? rawServices.map(homepageServiceToInternal).filter(Boolean)
+      : [],
   };
 }
 
 function homepageServiceToInternal(service) {
+  // homepage /api/services returns services as: { name, href, description, icon, widgets: [...], ... }
+  if (service && typeof service === "object" && !Array.isArray(service) && service.name) {
+    const { name, widgets, ...rest } = service;
+    const internal = { name, ...rest };
+
+    // Drop homepage-internal fields not needed for editing
+    delete internal.weight;
+    delete internal.type;
+
+    if (Array.isArray(widgets) && widgets.length > 0) {
+      if (widgets.length === 1) {
+        internal.widget = normalizeWidgetEntry(widgets[0]);
+      } else {
+        internal.widgets = widgets.map(normalizeWidgetEntry);
+      }
+    }
+    return internal;
+  }
+
+  // Fallback: YAML-style { "ServiceName": { ...data } }
   const name = Object.keys(service)[0];
   const data = service[name] || {};
   const internal = { name, ...data };
 
-  // Normalize single widget vs multiple widgets to internal shape
   if (data.widget && !data.widgets) {
     internal.widget = { ...data.widget };
     delete internal.widgets;
@@ -59,22 +93,59 @@ function homepageServiceToInternal(service) {
   return internal;
 }
 
+function normalizeWidgetEntry(widget) {
+  // widgets from API may be { type, ...options } or { type: { ...options } }
+  if (!widget || typeof widget !== "object") return widget;
+  if (widget.type && typeof widget.type === "string") {
+    const { type, ...options } = widget;
+    return { type, ...options };
+  }
+  const type = Object.keys(widget)[0];
+  return { type, ...widget[type] };
+}
+
 function homepageBookmarkGroupToInternal(group) {
+  // homepage /api/bookmarks returns: { name, bookmarks: [...] }
+  if (group && typeof group === "object" && !Array.isArray(group) && group.name) {
+    return {
+      name: group.name,
+      items: Array.isArray(group.bookmarks)
+        ? group.bookmarks.map(homepageBookmarkToInternal).filter(Boolean)
+        : [],
+    };
+  }
+
+  // Fallback: YAML-style { "GroupName": [items] }
   const name = Object.keys(group)[0];
   const rawItems = group[name] || [];
   return {
     name,
-    items: rawItems.map(homepageBookmarkToInternal).filter(Boolean),
+    items: Array.isArray(rawItems)
+      ? rawItems.map(homepageBookmarkToInternal).filter(Boolean)
+      : [],
   };
 }
 
 function homepageBookmarkToInternal(bookmark) {
+  // homepage /api/bookmarks items: { name, abbr, href, ... }
+  if (bookmark && typeof bookmark === "object" && !Array.isArray(bookmark) && bookmark.name) {
+    const { name, ...rest } = bookmark;
+    return { name, ...rest };
+  }
+  // Fallback: YAML-style { "BookmarkName": { ...data } }
   const name = Object.keys(bookmark)[0];
   const data = bookmark[name] || {};
   return { name, ...data };
 }
 
 function homepageWidgetToInternal(widget) {
+  // homepage /api/widgets returns: { type, options: {...} }
+  if (widget && typeof widget === "object" && !Array.isArray(widget) && widget.type) {
+    const options = widget.options || {};
+    const { index, ...cleanOptions } = options;
+    return { type: widget.type, options: cleanOptions };
+  }
+  // Fallback: YAML-style { "widgetType": { ...options } }
   const type = Object.keys(widget)[0];
   return { type, options: { ...widget[type] } };
 }
