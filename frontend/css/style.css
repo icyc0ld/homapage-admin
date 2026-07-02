@@ -454,7 +454,9 @@ body {
   color: var(--text);
 }
 
-.form-group input {
+.form-group input,
+.form-group select,
+.form-group textarea {
   width: 100%;
   padding: 11px 14px;
   background: rgba(0, 0, 0, 0.25);
@@ -462,17 +464,65 @@ body {
   border-radius: var(--radius-sm);
   color: var(--text);
   font-size: 0.95rem;
+  font-family: inherit;
   transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
-.form-group input::placeholder {
+.form-group input::placeholder,
+.form-group textarea::placeholder {
   color: rgba(148, 163, 184, 0.5);
 }
 
-.form-group input:focus {
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus {
   outline: none;
   border-color: var(--accent);
   box-shadow: 0 0 0 3px rgba(var(--accent-rgb), 0.15);
+}
+
+.form-group textarea {
+  resize: vertical;
+  min-height: 60px;
+  font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+  font-size: 0.88rem;
+  line-height: 1.5;
+}
+
+/* Custom select: dark-friendly with chevron */
+.form-group select {
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  padding-right: 36px;
+  background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%2394a3b8' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  background-size: 16px;
+  cursor: pointer;
+}
+
+.form-group select option {
+  background: var(--surface-solid);
+  color: var(--text);
+}
+
+/* Checkbox label inline layout */
+.form-group .checkbox-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 0;
+  font-weight: 400;
+  cursor: pointer;
+  user-select: none;
+}
+
+.form-group .checkbox-label input[type="checkbox"] {
+  width: 16px;
+  height: 16px;
+  accent-color: var(--accent);
+  cursor: pointer;
 }
 
 .hint {

@@ -11,7 +11,7 @@ export SSH_ASKPASS_REQUIRE=force
 
 source "$SCRIPT_DIR/.env.deploy"
 
-IMAGE="ghcr.io/icyc0ld/homapage-admin:test-v5"
+IMAGE="ghcr.io/icyc0ld/homapage-admin:test-v6"
 CONTAINER_NAME="hp-admin"
 DATA_DIR="/vol2/1000/docker/hp-admin"
 PORT="7666"
