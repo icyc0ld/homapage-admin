@@ -1,4 +1,5 @@
 import yaml from "js-yaml";
+import { execFileSync } from "child_process";
 
 function normalizeUrl(url) {
   let normalized = url.trim();
@@ -235,5 +236,69 @@ export function createEmptyConfig() {
     widgets: [],
     services: [],
     bookmarks: [],
+  };
+}
+
+/* ---------------- Sync to remote homepage via SSH ---------------- */
+
+const SYNC_HOST = process.env.SYNC_HOST || "";
+const SYNC_PORT = process.env.SYNC_PORT || "22";
+const SYNC_USER = process.env.SYNC_USER || "";
+const SYNC_PASSWORD = process.env.SYNC_PASSWORD || "";
+const HOMEPAGE_CONFIG_DIR = process.env.HOMEPAGE_CONFIG_DIR || "/app/config";
+
+function writeRemoteFile(filePath, content) {
+  execFileSync(
+    "sshpass",
+    [
+      "-p",
+      SYNC_PASSWORD,
+      "ssh",
+      "-o", "StrictHostKeyChecking=no",
+      "-o", "UserKnownHostsFile=/dev/null",
+      "-o", "LogLevel=ERROR",
+      "-p",
+      SYNC_PORT,
+      `${SYNC_USER}@${SYNC_HOST}`,
+      `cat > ${HOMEPAGE_CONFIG_DIR}/${filePath}`,
+    ],
+    { input: content, encoding: "utf8", timeout: 30000 },
+  );
+}
+
+async function revalidateHomepage(baseUrl) {
+  const url = `${normalizeUrl(baseUrl)}/api/revalidate`;
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), 10000);
+  try {
+    const response = await fetch(url, {
+      method: "GET",
+      signal: controller.signal,
+    });
+    clearTimeout(timeout);
+    return { ok: response.ok, status: response.status };
+  } catch (error) {
+    clearTimeout(timeout);
+    return { ok: false, status: null, error: error.message };
+  }
+}
+
+export async function syncConfigToHomepage(config, homepageBaseUrl) {
+  if (!SYNC_HOST || !SYNC_USER || !SYNC_PASSWORD) {
+    throw new Error("未配置同步凭据（SYNC_HOST / SYNC_USER / SYNC_PASSWORD）");
+  }
+
+  const yamls = exportYaml(config);
+  const files = ["settings", "widgets", "services", "bookmarks"];
+
+  for (const file of files) {
+    writeRemoteFile(`${file}.yaml`, yamls[file]);
+  }
+
+  const revalidate = await revalidateHomepage(homepageBaseUrl);
+
+  return {
+    files,
+    revalidate,
   };
 }

@@ -3,6 +3,9 @@
 
 FROM node:22-alpine AS runner
 
+# Install sshpass + openssh-client for SSH-based config sync to remote homepage
+RUN apk add --no-cache sshpass openssh-client
+
 WORKDIR /app
 
 # Install backend dependencies

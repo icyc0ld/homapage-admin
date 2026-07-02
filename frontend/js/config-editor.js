@@ -780,6 +780,27 @@ async function importConfig() {
   }
 }
 
+async function syncConfig() {
+  const btn = $c("#btn-sync");
+  const originalText = btn.textContent;
+  btn.textContent = "同步中...";
+  btn.disabled = true;
+
+  try {
+    const { data } = await configApi(`/servers/${currentServer.id}/config/sync`, { method: "POST" });
+    if (data.warning) {
+      showConfigToast(data.warning, "info");
+    } else {
+      showConfigToast(`已同步 ${data.files.length} 个文件到 homepage`, "success");
+    }
+  } catch (err) {
+    showConfigToast(err.message, "error");
+  } finally {
+    btn.textContent = originalText;
+    btn.disabled = false;
+  }
+}
+
 function toggleExportMenu() {
   $c("#export-options").classList.toggle("open");
 }
@@ -803,9 +824,10 @@ function initConfigEditor() {
   // Back
   $c("#btn-back")?.addEventListener("click", closeConfigEditor);
 
-  // Save / Import / Export
+  // Save / Import / Export / Sync
   $c("#btn-save-config")?.addEventListener("click", saveConfig);
   $c("#btn-import")?.addEventListener("click", importConfig);
+  $c("#btn-sync")?.addEventListener("click", syncConfig);
   $c("#btn-export")?.addEventListener("click", toggleExportMenu);
 
   // Widgets

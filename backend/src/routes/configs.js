@@ -1,7 +1,7 @@
 import { Router } from "express";
 import { readServers } from "../store/jsonStore.js";
 import { readConfig, writeConfig, createEmptyConfig } from "../store/configStore.js";
-import { fetchHomepageConfig, exportYaml } from "../services/homepageConfig.js";
+import { fetchHomepageConfig, exportYaml, syncConfigToHomepage } from "../services/homepageConfig.js";
 
 const router = Router({ mergeParams: true });
 
@@ -80,6 +80,26 @@ router.get("/export/:file", (req, res) => {
   res.setHeader("Content-Type", "text/yaml; charset=utf-8");
   res.setHeader("Content-Disposition", `attachment; filename="${file}.yaml"`);
   res.send(yamls[file]);
+});
+
+router.post("/sync", async (req, res) => {
+  const server = getServer(req, res);
+  if (!server) return;
+
+  // Use the config from store (must be saved first)
+  const config = readConfig(server.id);
+
+  try {
+    const result = await syncConfigToHomepage(config, server.baseUrl);
+    if (!result.revalidate.ok) {
+      return res.status(207).json({
+        data: { ...result, warning: "文件已写入，但 homepage 刷新失败，请手动刷新页面" },
+      });
+    }
+    res.json({ data: result });
+  } catch (error) {
+    res.status(502).json({ error: `同步到 homepage 失败：${error.message}` });
+  }
 });
 
 export default router;

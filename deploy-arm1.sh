@@ -11,7 +11,7 @@ export SSH_ASKPASS_REQUIRE=force
 
 source "$SCRIPT_DIR/.env.deploy"
 
-IMAGE="ghcr.io/icyc0ld/homapage-admin:test-v4"
+IMAGE="ghcr.io/icyc0ld/homapage-admin:test-v5"
 CONTAINER_NAME="hp-admin"
 DATA_DIR="/vol2/1000/docker/hp-admin"
 PORT="7666"
@@ -83,6 +83,11 @@ echo "\$DEPLOY_PASSWORD" | sudo -S docker run -d \\
   --restart unless-stopped \\
   -p "\${PORT}:8080" \\
   -v "\${DATA_DIR}:/app/backend/data" \\
+  -e SYNC_HOST=192.168.100.101 \\
+  -e SYNC_PORT=220 \\
+  -e SYNC_USER=admin \\
+  -e SYNC_PASSWORD="\$DEPLOY_PASSWORD" \\
+  -e HOMEPAGE_CONFIG_DIR=/vol2/1000/docker/hp/config \\
   "\$IMAGE"
 
 echo "==> Deployment complete. Container status:"
